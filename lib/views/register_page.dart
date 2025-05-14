@@ -30,6 +30,17 @@ class _RegisterView extends StatelessWidget {
         padding: const EdgeInsets.all(30),
         child: Column(
           children: [
+            // Email Field
+            TextField(
+              controller: viewModel.emailController,
+              decoration: InputDecoration(
+                labelText: 'Correo electrónico',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Username Field
             TextField(
               controller: viewModel.usernameController,
               decoration: InputDecoration(
@@ -38,6 +49,8 @@ class _RegisterView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+
+            // Password Field
             TextField(
               controller: viewModel.passwordController,
               obscureText: true,
@@ -46,7 +59,59 @@ class _RegisterView extends StatelessWidget {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
               ),
             ),
+            const SizedBox(height: 20),
+
+            // First Name Field
+            TextField(
+              controller: viewModel.firstnameController,
+              decoration: InputDecoration(
+                labelText: 'Nombre',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Last Name Field
+            TextField(
+              controller: viewModel.lastnameController,
+              decoration: InputDecoration(
+                labelText: 'Apellido',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Phone Field
+            TextField(
+              controller: viewModel.phoneController,
+              decoration: InputDecoration(
+                labelText: 'Teléfono',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // DNI Field
+            TextField(
+              controller: viewModel.dniController,
+              decoration: InputDecoration(
+                labelText: 'DNI',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Type of Document Field
+            TextField(
+              controller: viewModel.tipoDocumentoController,
+              decoration: InputDecoration(
+                labelText: 'Tipo de documento',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+            ),
             const SizedBox(height: 30),
+
+            // Register Button
             ElevatedButton(
               onPressed: () => viewModel.registerUser(context),
               style: ElevatedButton.styleFrom(
