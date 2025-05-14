@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
+import '../models/login_model.dart';
 import '../services/auth_service.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -42,21 +42,27 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  bool login(BuildContext context) {
-    final user = User(
+  /// Método modificado para usar login real desde AuthService
+  Future<bool> login(BuildContext context) async {
+    final user = LoginModel(
       username: userController.text.trim(),
       password: passwordController.text,
     );
 
-    final isValid = AuthService.login(user);
+    final authService = AuthService();
+    final response = await authService.login(user);
 
-    if (!isValid) {
+    if (response != null && response['accessToken'] != null) {
+      // Aquí puedes guardar el token si deseas usarlo más adelante
+      // Ej: await SharedPreferences.getInstance().setString('token', response['accessToken']);
+
+      return true;
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario o clave incorrectos')),
       );
+      return false;
     }
-
-    return isValid;
   }
 
   void disposeResources() {

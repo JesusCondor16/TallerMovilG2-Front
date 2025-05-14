@@ -8,18 +8,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(),
-      child: const _LoginView(),
-    );
-  }
-}
-
-class _LoginView extends StatelessWidget {
-  const _LoginView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
     final viewModel = Provider.of<LoginViewModel>(context);
 
     return Scaffold(
@@ -29,7 +17,7 @@ class _LoginView extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              Image.asset('assets/ardillas.jpg', height: 250),
+              Image.asset('assets/images/ardillas.png', height: 250),
               const SizedBox(height: 10),
               const Text('Ahorra fácil, ahorra juntos', style: TextStyle(fontSize: 22, color: Colors.brown)),
               const SizedBox(height: 30),
@@ -87,8 +75,8 @@ class _LoginView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: ElevatedButton(
-                  onPressed: () {
-                    final success = viewModel.login(context);
+                  onPressed: () async {
+                    final success = await viewModel.login(context);
                     if (success) {
                       Navigator.pushNamed(context, '/home');
                     }
