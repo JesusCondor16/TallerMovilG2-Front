@@ -55,4 +55,11 @@ class AuthService {
       return null;
     }
   }
+
+  // 🔐 NUEVO: Función para cerrar sesión
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    print('Sesión cerrada: token eliminado');
+  }
 }

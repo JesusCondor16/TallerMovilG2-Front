@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../viewmodels/create_account_view_model.dart';
 
 class CreateAccountScreen extends StatelessWidget {
-  // Se elimina el const, ya que el constructor no es constante
   CreateAccountScreen({super.key});
 
   @override
@@ -12,42 +11,94 @@ class CreateAccountScreen extends StatelessWidget {
       create: (_) => CreateAccountViewModel(),
       child: Consumer<CreateAccountViewModel>(
         builder: (context, viewModel, _) => Scaffold(
-          appBar: AppBar(title: const Text('Crear Cuenta')),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
+          appBar: AppBar(
+            title: const Text('Crear Cuenta'),
+            backgroundColor: Colors.green,
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Campo para el nombre de la cuenta
+                const Center(
+                  child: Text(
+                    'Crear Nueva Cuenta',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.brown,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Campo para el nombre
                 TextField(
                   controller: viewModel.nombreController,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                ),
-                // Campo para el tipo de la cuenta
-                TextField(
-                  controller: viewModel.tipoController,
-                  decoration: const InputDecoration(labelText: 'Tipo'),
-                ),
-                // Campo para la moneda de la cuenta
-                TextField(
-                  controller: viewModel.monedaController,
-                  decoration: const InputDecoration(labelText: 'Moneda'),
-                ),
-                // Campo para el saldo de la cuenta
-                TextField(
-                  controller: viewModel.saldoController,
-                  decoration: const InputDecoration(labelText: 'Saldo'),
-                  keyboardType: TextInputType.number,
-                ),
-                // Campo para la descripción de la cuenta
-                TextField(
-                  controller: viewModel.descripcionController,
-                  decoration: const InputDecoration(labelText: 'Descripción'),
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre',
+                    prefixIcon: Icon(Icons.account_circle),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
                 ),
                 const SizedBox(height: 20),
+
+                // Campo para el tipo
+                TextField(
+                  controller: viewModel.tipoController,
+                  decoration: const InputDecoration(
+                    labelText: 'Tipo',
+                    prefixIcon: Icon(Icons.category),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Campo para la moneda
+                TextField(
+                  controller: viewModel.monedaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Moneda',
+                    prefixIcon: Icon(Icons.monetization_on),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Campo para el saldo
+                TextField(
+                  controller: viewModel.saldoController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Saldo',
+                    prefixIcon: Icon(Icons.attach_money),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Campo para la descripción
+                TextField(
+                  controller: viewModel.descripcionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Descripción',
+                    prefixIcon: Icon(Icons.description),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
                 // Botón para crear la cuenta
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: () => viewModel.createAccount(context),
-                  child: const Text('Crear Cuenta'),
+                  icon: const Icon(Icons.check),
+                  label: const Text('Crear Cuenta', style: TextStyle(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ],
             ),
