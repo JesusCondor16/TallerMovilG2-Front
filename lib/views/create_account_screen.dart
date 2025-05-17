@@ -7,97 +7,108 @@ class CreateAccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    InputDecoration _inputDecoration(String label, IconData icon) {
+      return InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.brown),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.brown),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      );
+    }
+
     return ChangeNotifierProvider(
       create: (_) => CreateAccountViewModel(),
       child: Consumer<CreateAccountViewModel>(
         builder: (context, viewModel, _) => Scaffold(
+          backgroundColor: const Color(0xFFFFFCF5),
           appBar: AppBar(
             title: const Text('Crear Cuenta'),
             backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Center(
-                  child: Text(
-                    'Crear Nueva Cuenta',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.brown,
-                    ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Crear Nueva Cuenta',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown,
                   ),
                 ),
                 const SizedBox(height: 30),
 
-                // Campo para el nombre
-                TextField(
-                  controller: viewModel.nombreController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre',
-                    prefixIcon: Icon(Icons.account_circle),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.brown.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 20),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: viewModel.nombreController,
+                        decoration: _inputDecoration('Nombre', Icons.account_circle),
+                      ),
+                      const SizedBox(height: 20),
 
-                // Campo para el tipo
-                TextField(
-                  controller: viewModel.tipoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tipo',
-                    prefixIcon: Icon(Icons.category),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                      TextField(
+                        controller: viewModel.tipoController,
+                        decoration: _inputDecoration('Tipo', Icons.category),
+                      ),
+                      const SizedBox(height: 20),
 
-                // Campo para la moneda
-                TextField(
-                  controller: viewModel.monedaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Moneda',
-                    prefixIcon: Icon(Icons.monetization_on),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                      TextField(
+                        controller: viewModel.monedaController,
+                        decoration: _inputDecoration('Moneda', Icons.monetization_on),
+                      ),
+                      const SizedBox(height: 20),
 
-                // Campo para el saldo
-                TextField(
-                  controller: viewModel.saldoController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Saldo',
-                    prefixIcon: Icon(Icons.attach_money),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                      TextField(
+                        controller: viewModel.saldoController,
+                        keyboardType: TextInputType.number,
+                        decoration: _inputDecoration('Saldo', Icons.attach_money),
+                      ),
+                      const SizedBox(height: 20),
 
-                // Campo para la descripción
-                TextField(
-                  controller: viewModel.descripcionController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Descripción',
-                    prefixIcon: Icon(Icons.description),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-                  ),
-                ),
-                const SizedBox(height: 30),
+                      TextField(
+                        controller: viewModel.descripcionController,
+                        maxLines: 3,
+                        decoration: _inputDecoration('Descripción', Icons.description),
+                      ),
+                      const SizedBox(height: 30),
 
-                // Botón para crear la cuenta
-                ElevatedButton.icon(
-                  onPressed: () => viewModel.createAccount(context),
-                  icon: const Icon(Icons.check),
-                  label: const Text('Crear Cuenta', style: TextStyle(fontSize: 16)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ElevatedButton.icon(
+                        onPressed: () => viewModel.createAccount(context),
+                        icon: const Icon(Icons.check),
+                        label: const Text('Crear Cuenta', style: TextStyle(fontSize: 16)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

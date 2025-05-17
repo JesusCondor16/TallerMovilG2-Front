@@ -93,9 +93,9 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPage()));
+                  Navigator.pushNamed(context, '/forgotPassword');
                 },
-                child: const Text('¿Aún no tienes cuenta? Únete', style: TextStyle(color: Colors.green)),
+                child: const Text('Olvidé mi contraseña', style: TextStyle(color: Colors.red)),
               ),
             ],
           ),
