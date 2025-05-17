@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(), // ← Aquí insertas el widget del sidebar
+      drawer: const AppDrawer(),
       backgroundColor: const Color(0xFFFFFCF5),
       body: SafeArea(
         child: Padding(
@@ -43,39 +43,47 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.brown.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Cuenta Principal',
-                      style: TextStyle(fontSize: 18, color: Colors.brown),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '\$1,250.00',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+
+              // Aquí se envuelve la tarjeta de cuenta con GestureDetector para navegar
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/accountDetail');
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.brown.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Cuenta Principal',
+                        style: TextStyle(fontSize: 18, color: Colors.brown),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        '\$1,250.00',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
               const SizedBox(height: 30),
               Container(
                 width: double.infinity,
@@ -103,7 +111,7 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 15),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/invierteYa');
+                        Navigator.pushNamed(context, '/aiAssistant');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -126,4 +134,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
