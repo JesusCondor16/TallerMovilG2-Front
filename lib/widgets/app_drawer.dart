@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
-import '../viewmodels/report_viewmodel.dart'; // Importa el nuevo ViewModel
+import '../viewmodels/report_viewmodel.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -33,12 +33,8 @@ class AppDrawer extends StatelessWidget {
   }
 
   void _navigateToReportAccount(BuildContext context) {
-    // Obtienes el ReportViewModel para hacer alguna acción si es necesario
     final reportVM = Provider.of<ReportViewModel>(context, listen: false);
-
-    // Si tu viewmodel tiene alguna función para preparar la denuncia, la llamas aquí
     reportVM.prepareReport();
-
     Navigator.pop(context);
     Navigator.pushNamed(context, '/reportAccount');
   }
@@ -51,7 +47,10 @@ class AppDrawer extends StatelessWidget {
         children: [
           const DrawerHeader(
             decoration: BoxDecoration(color: Colors.green),
-            child: Text('CooperApp', style: TextStyle(color: Colors.white, fontSize: 24)),
+            child: Text(
+              'CooperApp',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.home),

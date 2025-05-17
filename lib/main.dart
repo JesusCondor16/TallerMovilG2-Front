@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'views/login_page.dart';
 import 'views/create_account_screen.dart';
 import 'views/register_page.dart';
@@ -20,6 +19,9 @@ import 'viewmodels/create_account_view_model.dart';
 import 'viewmodels/register_viewmodel.dart';
 import 'viewmodels/report_viewmodel.dart';
 import 'viewmodels/ai_assistant_view_model.dart';
+
+import 'viewmodels/login_viewmodel.dart';
+import 'viewmodels/register_viewmodel.dart';  // Importa también el RegisterViewModel
 
 void main() {
   runApp(
@@ -53,7 +55,7 @@ class CooperApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/createAccount': (context) => CreateAccountScreen(),
         '/perfil': (context) => PerfilPage(),
-        '/editarPerfil': (context) => EditarPerfilPage(),
+        //'/editarPerfil': (context) => EditarPerfilPage(),
         '/reportAccount': (context) => ReportAccountScreen(),
         '/aiAssistant': (context) => AiAssistantScreen(),
         '/solicitarRetiro': (context) => SolicitarRetiroScreen(),
