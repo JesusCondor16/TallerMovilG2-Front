@@ -7,7 +7,6 @@ import '../config/constants.dart';
 class RegisterViewModel extends ChangeNotifier {
   // Controllers for each input field
   final emailController = TextEditingController();
-  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final firstnameController = TextEditingController();
   final lastnameController = TextEditingController();
@@ -15,8 +14,21 @@ class RegisterViewModel extends ChangeNotifier {
   final dniController = TextEditingController();
   final tipoDocumentoController = TextEditingController();
 
+  DateTime? fechaNacimiento;
+
+  void setFechaNacimiento(DateTime date) {
+    fechaNacimiento = date;
+    notifyListeners();
+  }
+
   Future<void> registerUser(BuildContext context) async {
-    // Crear la instancia de RegisterModel con los datos de los controllers
+    if (fechaNacimiento == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, seleccione la fecha de nacimiento')),
+      );
+      return;
+    }
+
     final registerModel = RegisterModel(
       email: emailController.text,
       password: passwordController.text,
@@ -25,17 +37,14 @@ class RegisterViewModel extends ChangeNotifier {
       tipoDocumento: tipoDocumentoController.text,
       dni: dniController.text,
       telefono: phoneController.text,
-      username: usernameController.text,
+      fechaNacimiento: fechaNacimiento!.toIso8601String(),
     );
 
-    // Hacer la solicitud de registro
     final response = await _register(registerModel);
 
     if (response != null) {
-      // Manejar éxito (por ejemplo, navegar a la página principal)
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // Manejar error (por ejemplo, mostrar un mensaje de error)
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al registrar, intente nuevamente')),
       );
@@ -48,12 +57,12 @@ class RegisterViewModel extends ChangeNotifier {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(registerModel.toJson()), // Usar el método toJson de RegisterModel
+      body: jsonEncode(registerModel.toJson()),
     );
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      return data; // Contiene la respuesta (accessToken, etc.)
+      return data;
     } else {
       print('Error al hacer registro: ${response.statusCode}');
       print(response.body);

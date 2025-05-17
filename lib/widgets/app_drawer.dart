@@ -42,7 +42,7 @@ class AppDrawer extends StatelessWidget {
             child: Text('CooperApp', style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
-            leading: Icon(Icons.person),
+            leading: const Icon(Icons.person),
             title: const Text('Perfil'),
             onTap: () {
               Navigator.pop(context); // Cierra el Drawer
@@ -50,28 +50,28 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.account_balance),
+            leading: const Icon(Icons.account_balance),
             title: const Text('Crear cuenta'),
             onTap: () => Navigator.pushNamed(context, '/createAccount'),
           ),
           ListTile(
-            leading: Icon(Icons.group_add),
+            leading: const Icon(Icons.group_add),
             title: const Text('Unirme a una cuenta'),
             onTap: () => Navigator.pushNamed(context, '/joinAccount'),
           ),
           ListTile(
-            leading: Icon(Icons.report),
+            leading: const Icon(Icons.report),
             title: const Text('Denunciar cuenta'),
             onTap: () => Navigator.pushNamed(context, '/reportAccount'),
           ),
           ListTile(
-            leading: Icon(Icons.savings),
+            leading: const Icon(Icons.savings),
             title: const Text('AhorraYa'),
             onTap: () => Navigator.pushNamed(context, '/invierteYa'),
           ),
           const Divider(),
           ListTile(
-            leading: Icon(Icons.logout),
+            leading: const Icon(Icons.logout),
             title: const Text('Cerrar sesión'),
             onTap: () => _confirmLogout(context),
           ),

@@ -1,23 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../services/user_service.dart';
+import '../models/user_model.dart';
 
-class PerfilPage extends StatelessWidget {
+class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Datos de ejemplo (idealmente provendrán del ViewModel)
-    final nombreCompleto = 'Juan Pérez';
-    final documento = '12345678';
-    final fechaNacimiento = '01/01/1990';
-    final email = 'juan@example.com';
-    final telefono = '987654321';
+  State<PerfilPage> createState() => _PerfilPageState();
+}
 
+class _PerfilPageState extends State<PerfilPage> {
+  UserModel? user;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final userService = UserService();
+      final result = await userService.fetchUserProfile();
+      setState(() {
+        user = result;
+        loading = false;
+      });
+    } catch (e) {
+      print('Error al cargar perfil: $e');
+      setState(() {
+        loading = false;
+        user = null;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
         backgroundColor: Colors.green,
       ),
-      body: SingleChildScrollView(
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : user == null
+          ? const Center(child: Text("No se pudo cargar el perfil"))
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,72 +64,58 @@ class PerfilPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-
-            const Text('Nombre completo'),
-            TextFormField(
-              initialValue: nombreCompleto,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
+            _buildField('Nombre completo', user!.nombre),
+            _buildField('Documento de identidad', user!.dni),
+            _buildField(
+              'Fecha de nacimiento',
+              _formatDate(user!.fechaNacimiento),
             ),
-            const SizedBox(height: 20),
-
-            const Text('Documento de identidad'),
-            TextFormField(
-              initialValue: documento,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            const Text('Fecha de nacimiento'),
-            TextFormField(
-              initialValue: fechaNacimiento,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            const Text('Correo electrónico'),
-            TextFormField(
-              initialValue: email,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            const Text('Número de teléfono'),
-            TextFormField(
-              initialValue: telefono,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildField('Correo electrónico', user!.email),
+            _buildField('Número de teléfono', user!.telefono),
             const SizedBox(height: 30),
-
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30, vertical: 15),
                 ),
                 onPressed: () {
                   Navigator.pushNamed(context, '/editarPerfil');
                 },
-                child: const Text('Editar perfil', style: TextStyle(color: Colors.white)),
+                child: const Text('Editar perfil',
+                    style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        TextFormField(
+          initialValue: value,
+          readOnly: true,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  String _formatDate(String rawDate) {
+    try {
+      final date = DateTime.parse(rawDate);
+      return DateFormat('dd/MM/yyyy').format(date);
+    } catch (_) {
+      return rawDate; // En caso de error, muestra la cadena original
+    }
   }
 }

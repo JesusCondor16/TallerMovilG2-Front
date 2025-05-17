@@ -19,7 +19,10 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 20),
               Image.asset('assets/images/ardillas.png', height: 250),
               const SizedBox(height: 10),
-              const Text('Ahorra fácil, ahorra juntos', style: TextStyle(fontSize: 22, color: Colors.brown)),
+              const Text(
+                'Ahorra fácil, ahorra juntos',
+                style: TextStyle(fontSize: 22, color: Colors.brown),
+              ),
               const SizedBox(height: 30),
 
               Padding(
@@ -28,9 +31,12 @@ class LoginPage extends StatelessWidget {
                   children: [
                     TextField(
                       controller: viewModel.userController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Usuario',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -39,9 +45,13 @@ class LoginPage extends StatelessWidget {
                       focusNode: viewModel.passwordFocusNode,
                       obscureText: true,
                       readOnly: true,
+                      keyboardType: TextInputType.none,  // Evita teclado nativo
+                      showCursor: true,
                       decoration: InputDecoration(
                         labelText: 'Clave',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     ),
                   ],
@@ -57,13 +67,23 @@ class LoginPage extends StatelessWidget {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   children: [
-                    ...viewModel.shuffledNumbers.map((number) => ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade100),
-                      onPressed: () => viewModel.onNumberPressed(number),
-                      child: Text(number, style: const TextStyle(fontSize: 20, color: Colors.black)),
-                    )),
+                    ...viewModel.shuffledNumbers.map(
+                          (number) => ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green.shade100,
+                        ),
+                        onPressed: () => viewModel.onNumberPressed(number),
+                        child: Text(
+                          number,
+                          style:
+                          const TextStyle(fontSize: 20, color: Colors.black),
+                        ),
+                      ),
+                    ),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade100),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade100,
+                      ),
                       onPressed: viewModel.onDeletePressed,
                       child: const Icon(Icons.backspace, color: Colors.black),
                     ),
@@ -84,18 +104,28 @@ class LoginPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
                   ),
-                  child: const Text('Ingresar', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  child: const Text(
+                    'Ingresar',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterPage()),
+                  );
                 },
-                child: const Text('¿Aún no tienes cuenta? Únete', style: TextStyle(color: Colors.green)),
+                child: const Text(
+                  '¿Aún no tienes cuenta? Únete',
+                  style: TextStyle(color: Colors.green),
+                ),
               ),
             ],
           ),
