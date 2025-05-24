@@ -11,13 +11,17 @@ class CreateAccountScreen extends StatelessWidget {
       return InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: Colors.brown),
+        labelStyle: const TextStyle(color: Colors.brown),
         filled: true,
         fillColor: Colors.white,
-        labelStyle: const TextStyle(color: Colors.brown),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: Colors.brown, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.green, width: 2),
         ),
       );
     }
@@ -106,6 +110,7 @@ class CreateAccountScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
+                          elevation: 4,
                         ),
                       ),
                     ],
