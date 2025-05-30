@@ -14,8 +14,42 @@ class RegisterPage extends StatelessWidget {
   }
 }
 
-class _RegisterView extends StatelessWidget {
+class _RegisterView extends StatefulWidget {
   const _RegisterView({super.key});
+
+  @override
+  State<_RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<_RegisterView> {
+  DateTime? selectedDate;
+  final TextEditingController dateController = TextEditingController();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final now = DateTime.now();
+    final initialDate = selectedDate ?? DateTime(now.year - 18, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: now,
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        dateController.text = '${picked.day}/${picked.month}/${picked.year}';
+      });
+
+      final viewModel = Provider.of<RegisterViewModel>(context, listen: false);
+      viewModel.setFechaNacimiento(picked);
+    }
+  }
+
+  @override
+  void dispose() {
+    dateController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +60,10 @@ class _RegisterView extends StatelessWidget {
         title: const Text('Registro'),
         backgroundColor: Colors.green,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(30),
         child: Column(
           children: [
-            // Email Field
             TextField(
               controller: viewModel.emailController,
               decoration: InputDecoration(
@@ -40,17 +73,6 @@ class _RegisterView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Username Field
-            TextField(
-              controller: viewModel.usernameController,
-              decoration: InputDecoration(
-                labelText: 'Usuario',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Password Field
             TextField(
               controller: viewModel.passwordController,
               obscureText: true,
@@ -61,7 +83,6 @@ class _RegisterView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // First Name Field
             TextField(
               controller: viewModel.firstnameController,
               decoration: InputDecoration(
@@ -71,7 +92,6 @@ class _RegisterView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Last Name Field
             TextField(
               controller: viewModel.lastnameController,
               decoration: InputDecoration(
@@ -81,7 +101,6 @@ class _RegisterView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Phone Field
             TextField(
               controller: viewModel.phoneController,
               decoration: InputDecoration(
@@ -91,7 +110,6 @@ class _RegisterView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // DNI Field
             TextField(
               controller: viewModel.dniController,
               decoration: InputDecoration(
@@ -101,7 +119,6 @@ class _RegisterView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Type of Document Field
             TextField(
               controller: viewModel.tipoDocumentoController,
               decoration: InputDecoration(
@@ -109,11 +126,28 @@ class _RegisterView extends StatelessWidget {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Campo de fecha corregido
+            GestureDetector(
+              onTap: () => _selectDate(context),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: dateController,
+                  decoration: InputDecoration(
+                    labelText: 'Fecha de nacimiento',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 30),
 
-            // Register Button
             ElevatedButton(
-              onPressed: () => viewModel.registerUser(context),
+              onPressed: () {
+                // Aquí podrías también enviar la fecha al ViewModel si lo deseas
+                viewModel.registerUser(context);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 minimumSize: const Size(double.infinity, 50),
@@ -127,4 +161,3 @@ class _RegisterView extends StatelessWidget {
     );
   }
 }
-

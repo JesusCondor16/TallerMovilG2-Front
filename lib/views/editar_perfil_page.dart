@@ -1,55 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../models/user_model.dart';
+import '../services/user_service.dart';
 
 class EditarPerfilPage extends StatefulWidget {
-  const EditarPerfilPage({super.key});
+  final UserModel user;
+
+  const EditarPerfilPage({super.key, required this.user});
 
   @override
   State<EditarPerfilPage> createState() => _EditarPerfilPageState();
 }
 
 class _EditarPerfilPageState extends State<EditarPerfilPage> {
-  // Datos simulados (en la práctica vendrían del ViewModel)
-  final nombreCompleto = 'Juan Pérez';
-  final documento = '12345678';
-  final fechaNacimiento = '01/01/1990';
+  late TextEditingController emailController;
+  late TextEditingController telefonoController;
 
-  final TextEditingController emailController =
-  TextEditingController(text: 'juan@example.com');
-  final TextEditingController telefonoController =
-  TextEditingController(text: '987654321');
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController(text: widget.user.email);
+    telefonoController = TextEditingController(text: widget.user.telefono);
+  }
 
-  void _confirmarGuardado() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('¿Guardar datos cambiados?'),
-        content: const Text('Se actualizará la información de contacto.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(), // Cancelar
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Cerrar diálogo
-              Navigator.of(context).pop(); // Volver a PerfilPage
-              // Aquí podrías llamar a tu ViewModel para guardar los cambios
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Datos guardados')),
-              );
-            },
-            child: const Text(
-              'Confirmar',
-              style: TextStyle(color: Colors.green),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _guardarCambios() async {
+    final userService = UserService();
+    final success = await userService.updateUser(
+      emailController.text.trim(),
+      telefonoController.text.trim(),
     );
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Datos actualizados con éxito')),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al guardar los cambios')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = widget.user;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Perfil'),
@@ -71,71 +67,67 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
               ),
             ),
             const SizedBox(height: 30),
-
-            const Text('Nombre completo'),
-            TextFormField(
-              initialValue: nombreCompleto,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
+            _buildReadOnlyField('Nombre completo', user.nombre),
+            _buildReadOnlyField('Documento de identidad', user.dni),
+            _buildReadOnlyField(
+              'Fecha de nacimiento',
+              user.fechaNacimiento != null && user.fechaNacimiento.isNotEmpty
+                  ? DateFormat('dd MMMM yyyy').format(DateTime.parse(user.fechaNacimiento))
+                  : '',
             ),
-            const SizedBox(height: 20),
-
-            const Text('Documento de identidad'),
-            TextFormField(
-              initialValue: documento,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            const Text('Fecha de nacimiento'),
-            TextFormField(
-              initialValue: fechaNacimiento,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            const Text('Correo electrónico'),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            const Text('Número de teléfono'),
-            TextFormField(
-              controller: telefonoController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildEditableField('Correo electrónico', emailController),
+            _buildEditableField('Número de teléfono', telefonoController),
             const SizedBox(height: 30),
-
             Center(
               child: ElevatedButton(
-                onPressed: _confirmarGuardado,
+                onPressed: _guardarCambios,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
-                child: const Text(
-                  'Guardar',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: const Text('Guardar', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReadOnlyField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        TextFormField(
+          initialValue: value,
+          readOnly: true,
+          showCursor: false,
+          style: const TextStyle(color: Colors.black),
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            filled: true,
+            fillColor: Color(0xFFE0E0E0), // gris claro
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildEditableField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        TextFormField(
+          controller: controller,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }

@@ -6,7 +6,7 @@ class RegisterModel {
   final String tipoDocumento;
   final String dni;
   final String telefono;
-  final String username;
+  final String fechaNacimiento;
 
   // Constructor
   RegisterModel({
@@ -17,10 +17,10 @@ class RegisterModel {
     required this.tipoDocumento,
     required this.dni,
     required this.telefono,
-    required this.username,
+    required this.fechaNacimiento,
   });
 
-  // Convierte un objeto RegisterModel a un mapa JSON para enviarlo al backend
+  // Convierte un objeto RegisterModel a un mapa JSON
   Map<String, dynamic> toJson() {
     return {
       'email': email,
@@ -30,7 +30,7 @@ class RegisterModel {
       'tipoDocumento': tipoDocumento,
       'dni': dni,
       'telefono': telefono,
-      'username': username,
+      'fechaNacimiento': fechaNacimiento,
     };
   }
 
@@ -44,7 +44,7 @@ class RegisterModel {
       tipoDocumento: json['tipoDocumento'],
       dni: json['dni'],
       telefono: json['telefono'],
-      username: json['username'],
+      fechaNacimiento: json['fechaNacimiento'],
     );
   }
 }
