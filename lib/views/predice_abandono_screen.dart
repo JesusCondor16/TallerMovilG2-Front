@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/predice_abandono_view_model.dart';
 
 class PrediceAbandonoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<PrediceAbandonoViewModel>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCF5),
       appBar: AppBar(
@@ -56,7 +60,7 @@ class PrediceAbandonoScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Alertas
+          // Alertas con datos del ViewModel
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -74,23 +78,29 @@ class PrediceAbandonoScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                _alertItem(Icons.calendar_today, "Menor frecuencia de ahorro"),
-                const SizedBox(height: 12),
-                _alertItem(Icons.attach_money, "Aportes bajos"),
+                ...viewModel.alertas.map((alert) => Column(
+                  children: [
+                    _alertItem(
+                      alert.contains("frecuencia") ? Icons.calendar_today : Icons.attach_money,
+                      alert,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                )).toList(),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          // Mensaje final
+          // Mensaje final desde el ViewModel
           Row(
-            children: const [
-              Icon(Icons.warning, color: Colors.red),
-              SizedBox(width: 8),
+            children: [
+              const Icon(Icons.warning, color: Colors.red),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "Riesgo alto de abandono el próximo mes",
-                  style: TextStyle(
+                  viewModel.riesgo,
+                  style: const TextStyle(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -128,4 +138,3 @@ class PrediceAbandonoScreen extends StatelessWidget {
     );
   }
 }
-
