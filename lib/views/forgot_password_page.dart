@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/forgot_password_viewmodel.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -8,25 +10,8 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final TextEditingController _userController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-
-  void _send() {
-    // Aquí podrías implementar la lógica para enviar el correo, etc.
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Correo enviado'),
-        content: const Text('Por favor revise su correo electrónico'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
+  final _userController = TextEditingController();
+  final _emailController = TextEditingController();
 
   @override
   void dispose() {
@@ -37,6 +22,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<ForgotPasswordViewModel>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recuperar contraseña'),
@@ -64,7 +51,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: _send,
+              onPressed: () {
+                viewModel.sendRecoveryEmail(
+                  context: context,
+                  username: _userController.text,
+                  email: _emailController.text,
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 minimumSize: const Size(double.infinity, 50),

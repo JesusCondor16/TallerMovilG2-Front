@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/home_view_model.dart';
+import '../models/account_model.dart';
 import '../widgets/app_drawer.dart';
 
 class HomePage extends StatelessWidget {
@@ -8,129 +11,176 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      backgroundColor: const Color(0xFFFFFCF5),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Logo en esquina superior derecha con botón de menú
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/images/ardillas.png',
-                    height: 60,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Hola, $userName',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Aquí se envuelve la tarjeta de cuenta con GestureDetector para navegar
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/accountDetail');
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.brown.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
+    return ChangeNotifierProvider(
+      create: (_) => HomeViewModel(),
+      child: Scaffold(
+        drawer: const AppDrawer(),
+        backgroundColor: const Color(0xFFFFFCF5),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Consumer<HomeViewModel>(
+              builder: (context, viewModel, _) {
+                return SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
+                      _buildHeader(context),
+                      const SizedBox(height: 20),
                       Text(
-                        'Cuenta Principal',
-                        style: TextStyle(fontSize: 18, color: Colors.brown),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        '\$1,250.00',
-                        style: TextStyle(
-                          fontSize: 28,
+                        'Hola, $userName',
+                        style: const TextStyle(
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          color: Colors.brown,
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      _buildSection(
+                        "Cuentas donde soy dueño",
+                        viewModel.ownerAccounts,
+                        context,
+                        isOwner: true,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildSection(
+                        "Cuentas donde soy miembro",
+                        viewModel.memberAccounts,
+                        context,
+                        isOwner: false,
+                      ),
+                      const SizedBox(height: 30),
+                      _buildSuggestionBox(context),
                     ],
                   ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '¿No sabes cómo ahorrar?',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.brown,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      '¡Te ayudamos!',
-                      style: TextStyle(fontSize: 16, color: Colors.brown),
-                    ),
-                    const SizedBox(height: 15),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/aiAssistant');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text(
-                        '¡AhorraYa!',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        Image.asset(
+          'assets/images/ardillas.png',
+          height: 60,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection(String title, List<AccountModel> accounts, BuildContext context, {required bool isOwner}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.brown,
+            )),
+        const SizedBox(height: 10),
+        ...accounts.map((acc) => GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              isOwner ? '/accountDueno' : '/accountMiembro',
+              arguments: acc,
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.brown.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  acc.name,
+                  style: const TextStyle(fontSize: 18, color: Colors.brown),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'S/.${acc.balance.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )),
+      ],
+    );
+  }
+
+  Widget _buildSuggestionBox(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.green.shade100,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '¿No sabes cómo ahorrar?',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.brown,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            '¡Te ayudamos!',
+            style: TextStyle(fontSize: 16, color: Colors.brown),
+          ),
+          const SizedBox(height: 15),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/aiAssistant');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text(
+              '¡AhorraYa!',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+
