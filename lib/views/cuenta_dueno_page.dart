@@ -6,64 +6,140 @@ class CuentaDuenoPage extends StatelessWidget {
 
   const CuentaDuenoPage({super.key, required this.account});
 
+  static const _menuAnadir = 'añadir';
+  static const _menuCodigo = 'codigo';
+  static const _menuHistorial = 'historial';
+
+  void _handleMenuSelection(BuildContext context, String value) {
+    switch (value) {
+      case _menuAnadir:
+      _showMessage(context, 'Añadir miembros');
+      break;
+      case _menuCodigo:
+        _showMessage(context, 'Código generado');
+        break;
+      case _menuHistorial:
+        _showMessage(context, 'Descargando historial');
+        break;
+    }
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(account.name),
+        title: Text(
+          account.name,
+          style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+        ),
+        backgroundColor: Colors.indigo,
+        elevation: 0,
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              switch (value) {
-                case 'añadir':
-                // Acción para añadir miembros
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Añadir miembros')));
-                  break;
-                case 'codigo':
-                // Acción para generar código
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Código generado')));
-                  break;
-                case 'historial':
-                // Acción para descargar historial
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Descargando historial')));
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'añadir', child: Text('Añadir miembros')),
-              const PopupMenuItem(value: 'codigo', child: Text('Generar código')),
-              const PopupMenuItem(value: 'historial', child: Text('Descargar historial')),
+            onSelected: (value) => _handleMenuSelection(context, value),
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: _menuAnadir, child: Text('Añadir miembros')),
+              PopupMenuItem(value: _menuCodigo, child: Text('Generar código')),
+              PopupMenuItem(value: _menuHistorial, child: Text('Descargar historial')),
             ],
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Saldo: S/.${account.balance.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'Movimientos (depósitos y retiros):',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            // Aquí puedes usar un ListView.builder si tienes movimientos reales
-            const Text('• Depósito - S/. 100.00'),
-            const Text('• Retiro - S/. 50.00'),
-            const Text('• Depósito - S/. 200.00'),
-          ],
+      body: Container(
+        color: Colors.grey[100],
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Tarjeta de saldo
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Saldo disponible',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'S/. ${account.balance.toStringAsFixed(2)}',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.indigo,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Título movimientos
+              Text(
+                'Últimos movimientos',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 16),
+
+              // Lista simulada de movimientos
+              _buildMovimientoItem('Depósito', 100.00, Colors.green),
+              const SizedBox(height: 10),
+              _buildMovimientoItem('Retiro', 50.00, Colors.red),
+              const SizedBox(height: 10),
+              _buildMovimientoItem('Depósito', 200.00, Colors.green),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMovimientoItem(String tipo, double monto, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(
+          tipo == 'Depósito' ? Icons.arrow_downward : Icons.arrow_upward,
+          color: color,
+        ),
+        title: Text(tipo),
+        trailing: Text(
+          'S/. ${monto.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
       ),
     );
   }
 }
-
