@@ -138,4 +138,31 @@ class AccountService {
       return [];
     }
   }
+  Future<String?> generateInviteCode(String cuentaId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      print('Token no encontrado.');
+      return null;
+    }
+
+    final url = Uri.parse('${_baseUrl}v1/accounts/generate-code?cuentaId=$cuentaId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return response.body.replaceAll('"', ''); // en caso el backend retorne un JSON string con comillas
+    } else {
+      print('Error al generar código: ${response.statusCode}');
+      print(response.body);
+      return null;
+    }
+  }
+
 }

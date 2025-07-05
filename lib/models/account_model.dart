@@ -1,4 +1,5 @@
 class AccountModel {
+  final String cuentaId;
   final String nombreCuenta;
   final String tipo;
   final String estado;
@@ -10,6 +11,7 @@ class AccountModel {
   final DateTime fechaCreacion;
 
   AccountModel({
+    required this.cuentaId,
     required this.nombreCuenta,
     required this.tipo,
     required this.estado,
@@ -22,6 +24,7 @@ class AccountModel {
   });
   factory AccountModel.fromJson(Map<String, dynamic> json) {
     return AccountModel(
+      cuentaId: json['cuentaId'] ?? '',
       nombreCuenta: json['nombreCuenta'] ?? '',
       tipo: json['tipo'] ?? '',
       estado: json['estado'] ?? '',

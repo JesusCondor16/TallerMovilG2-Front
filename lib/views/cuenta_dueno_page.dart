@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/account_model.dart';
+import '../services/account_service.dart'; // Asegúrate de importar esto
+import 'package:flutter/services.dart'; // Necesario para Clipboard
 
 class CuentaDuenoPage extends StatelessWidget {
   final AccountModel account;
@@ -16,7 +18,7 @@ class CuentaDuenoPage extends StatelessWidget {
         _showMessage(context, 'Añadir miembros');
         break;
       case _menuCodigo:
-        _showMessage(context, 'Código generado');
+        _generateCodeAndShow(context);
         break;
       case _menuHistorial:
         _showMessage(context, 'Descargando historial');
@@ -30,6 +32,63 @@ class CuentaDuenoPage extends StatelessWidget {
     );
   }
 
+  void _generateCodeAndShow(BuildContext context) async {
+    final service = AccountService();
+    final code = await service.generateInviteCode(account.cuentaId);
+
+    if (!context.mounted) return;
+
+    if (code != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Código generado'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SelectableText(
+                code,
+                style: const TextStyle(
+                  fontSize: 20,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.copy, size: 18),
+                label: const Text('Copiar código'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: code));
+                  Navigator.pop(context); // Cerrar el AlertDialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Código copiado al portapapeles')),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      _showMessage(context, 'No se pudo generar el código.');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -37,7 +96,7 @@ class CuentaDuenoPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          account.nombreCuenta,  // Cambiado aquí
+          account.nombreCuenta,
           style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
         ),
         backgroundColor: Colors.indigo,
@@ -64,8 +123,7 @@ class CuentaDuenoPage extends StatelessWidget {
             children: [
               // Tarjeta de saldo
               Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -81,7 +139,7 @@ class CuentaDuenoPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        '${account.moneda} ${account.saldo.toStringAsFixed(2)}',  // Cambiado aquí
+                        '${account.moneda} ${account.saldo.toStringAsFixed(2)}',
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.indigo,
@@ -93,14 +151,11 @@ class CuentaDuenoPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Mostrar más info del modelo si quieres:
-              Text('Estado: ${account.estado}',
-                  style: theme.textTheme.bodyMedium),
+              // Información adicional
+              Text('Estado: ${account.estado}', style: theme.textTheme.bodyMedium),
               Text('Tipo: ${account.tipo}', style: theme.textTheme.bodyMedium),
-              Text('Descripción: ${account.descripcion}',
-                  style: theme.textTheme.bodyMedium),
-              Text('Creado por: ${account.creadorNombre}',
-                  style: theme.textTheme.bodyMedium),
+              Text('Descripción: ${account.descripcion}', style: theme.textTheme.bodyMedium),
+              Text('Creado por: ${account.creadorNombre}', style: theme.textTheme.bodyMedium),
               Text(
                 'Fecha de creación: ${account.fechaCreacion.toLocal().toString().split(' ')[0]}',
                 style: theme.textTheme.bodyMedium,
@@ -111,8 +166,7 @@ class CuentaDuenoPage extends StatelessWidget {
               // Título movimientos
               Text(
                 'Últimos movimientos',
-                style:
-                theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
 
@@ -150,7 +204,7 @@ class CuentaDuenoPage extends StatelessWidget {
         ),
         title: Text(tipo),
         trailing: Text(
-          '${account.moneda} ${monto.toStringAsFixed(2)}',  // También aquí para moneda
+          '${account.moneda} ${monto.toStringAsFixed(2)}',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: color,
