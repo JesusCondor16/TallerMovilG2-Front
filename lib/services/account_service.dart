@@ -164,5 +164,45 @@ class AccountService {
       return null;
     }
   }
+  /// Invitar un miembro a la cuenta
+  Future<bool> inviteMember({
+    required String email,
+    required String cuentaId,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      print('Token no encontrado. Usuario no autenticado.');
+      return false;
+    }
+
+    // Extraemos el UID del dueño desde el token (inviterUid)
+    final uid = _getUidFromToken(token);
+    if (uid == null) {
+      print('No se pudo extraer el UID del token.');
+      return false;
+    }
+
+    final url = Uri.parse(
+      '${_baseUrl}v1/notifications/invite-member?email=$email&cuentaId=$cuentaId&inviterUid=$uid',
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Invitación enviada correctamente');
+      return true;
+    } else {
+      print('Error al invitar miembro: ${response.statusCode}');
+      print(response.body);
+      return false;
+    }
+  }
 
 }

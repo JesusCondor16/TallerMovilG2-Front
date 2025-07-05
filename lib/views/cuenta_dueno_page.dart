@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/account_model.dart';
 import '../services/account_service.dart'; // Asegúrate de importar esto
-import 'package:flutter/services.dart'; // Necesario para Clipboard
+import 'package:flutter/services.dart'; // Para Clipboard
 
 class CuentaDuenoPage extends StatelessWidget {
   final AccountModel account;
@@ -15,7 +15,7 @@ class CuentaDuenoPage extends StatelessWidget {
   void _handleMenuSelection(BuildContext context, String value) {
     switch (value) {
       case _menuAnadir:
-        _showMessage(context, 'Añadir miembros');
+        _showInviteMemberDialog(context);
         break;
       case _menuCodigo:
         _generateCodeAndShow(context);
@@ -67,7 +67,7 @@ class CuentaDuenoPage extends StatelessWidget {
                 ),
                 onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: code));
-                  Navigator.pop(context); // Cerrar el AlertDialog
+                  Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Código copiado al portapapeles')),
                   );
@@ -88,6 +88,68 @@ class CuentaDuenoPage extends StatelessWidget {
     }
   }
 
+  void _showInviteMemberDialog(BuildContext context) {
+    final _emailController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+    final accountService = AccountService();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invitar nuevo miembro'),
+        content: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'Correo electrónico',
+              hintText: 'ejemplo@correo.com',
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingrese un correo';
+              }
+              final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+              if (!emailRegex.hasMatch(value)) {
+                return 'Correo inválido';
+              }
+              return null;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState?.validate() ?? false) {
+                final email = _emailController.text.trim();
+
+                Navigator.pop(context); // Cerrar el diálogo
+
+                bool success = await accountService.inviteMember(
+                  email: email,
+                  cuentaId: account.cuentaId,
+                );
+
+                if (!context.mounted) return;
+
+                if (success) {
+                  _showMessage(context, 'Invitación enviada a $email');
+                } else {
+                  _showMessage(context, 'Error al enviar invitación');
+                }
+              }
+            },
+            child: const Text('Enviar invitación'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
