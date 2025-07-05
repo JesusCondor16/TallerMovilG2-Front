@@ -19,6 +19,7 @@ import 'views/predice_abandono_screen.dart';
 import 'views/cuenta_dueno_page.dart';
 import 'views/cuenta_miembro_page.dart';
 
+
 import 'viewmodels/login_viewmodel.dart';
 import 'viewmodels/register_viewmodel.dart';
 import 'viewmodels/join_account_view_model.dart';

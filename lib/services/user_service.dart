@@ -60,7 +60,7 @@ class UserService {
     final uid = _getUidFromToken(token);
     if (uid == null) return false;
 
-    final url = Uri.parse('$_baseUrl/v1/users/edit/$uid');
+    final url = Uri.parse('${_baseUrl}v1/users/edit/$uid');
 
     final body = jsonEncode({
       "email": email,
@@ -78,6 +78,31 @@ class UserService {
     );
 
     return response.statusCode == 200;
+  }
+
+  Future<UserModel?> getUserFromToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) return null;
+
+    final uid = _getUidFromToken(token); // mismo método para extraer UID
+    if (uid == null) return null;
+
+    final url = Uri.parse('${AppConstants.backendBaseUrl}v1/users/$uid');
+
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return UserModel.fromJson(data);
+    } else {
+      print('Error al obtener usuario: ${response.statusCode}');
+      return null;
+    }
   }
 
 }

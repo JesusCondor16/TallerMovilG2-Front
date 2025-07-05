@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
+import 'editar_perfil_page.dart';
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -39,13 +40,6 @@ class _PerfilPageState extends State<PerfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Datos de ejemplo (idealmente provendrán del ViewModel)
-    final nombreCompleto = 'Juan Pérez';
-    final documento = '12345678';
-    final fechaNacimiento = '01/01/1990';
-    final email = 'juan@example.com';
-    final telefono = '987654321';
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
@@ -87,11 +81,24 @@ class _PerfilPageState extends State<PerfilPage> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 30, vertical: 15),
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/editarPerfil');
+                onPressed: () async {
+                  // Editar sin pasar parámetro
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EditarPerfilPage(),
+                    ),
+                  );
+
+                  // Recargar si se guardó correctamente
+                  if (result == true) {
+                    _loadUserProfile();
+                  }
                 },
-                child: const Text('Editar perfil',
-                    style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Editar perfil',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -122,7 +129,7 @@ class _PerfilPageState extends State<PerfilPage> {
       final date = DateTime.parse(rawDate);
       return DateFormat('dd/MM/yyyy').format(date);
     } catch (_) {
-      return rawDate; // En caso de error, muestra la cadena original
+      return rawDate;
     }
   }
 }
