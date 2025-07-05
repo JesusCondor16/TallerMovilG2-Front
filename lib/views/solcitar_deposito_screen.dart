@@ -3,16 +3,15 @@ import '../models/account_model.dart';
 import '../services/account_service.dart';
 import '../widgets/app_drawer.dart';
 
-class SolicitarRetiroScreen extends StatefulWidget {
-  const SolicitarRetiroScreen({Key? key}) : super(key: key);
+class SolicitarDepositoScreen extends StatefulWidget {
+  const SolicitarDepositoScreen({Key? key}) : super(key: key);
 
   @override
-  _SolicitarRetiroScreenState createState() => _SolicitarRetiroScreenState();
+  _SolicitarDepositoScreenState createState() => _SolicitarDepositoScreenState();
 }
 
-class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
+class _SolicitarDepositoScreenState extends State<SolicitarDepositoScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final AccountService _accountService = AccountService();
 
   List<AccountModel> _cuentas = [];
@@ -27,7 +26,6 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
   ];
 
   final TextEditingController _cantidadController = TextEditingController();
-  final TextEditingController _cuentaDestinoController = TextEditingController();
 
   @override
   void initState() {
@@ -45,7 +43,6 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
   @override
   void dispose() {
     _cantidadController.dispose();
-    _cuentaDestinoController.dispose();
     super.dispose();
   }
 
@@ -78,7 +75,7 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Solicitud enviada'),
         content: const Text(
-          'Se generó con éxito la solicitud de retiro de dinero, recuerde que, una vez aprobado por todos los miembros, visualizará el dinero en minutos.',
+          'Se generó con éxito la solicitud de depósito, el dinero se verá reflejado una vez aprobado.',
         ),
         actions: [
           TextButton(
@@ -93,7 +90,7 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
     );
   }
 
-  void _onSolicitarRetiro() async {
+  void _onSolicitarDeposito() async {
     if (_formKey.currentState!.validate()) {
       if (_cuentaSeleccionada == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -103,16 +100,16 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
       }
 
       final monto = double.tryParse(_cantidadController.text);
-      if (monto == null) {
+      if (monto == null || monto <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ingrese una cantidad válida')),
         );
         return;
       }
 
-      // Llamar al servicio para retirar
-      final success = await AccountService().withdraw(
-        cuentaId: _cuentaSeleccionada!.cuentaId, // o cuentaUid según tu modelo
+      // Llamar al servicio para depositar
+      final success = await _accountService.deposit(
+        cuentaId: _cuentaSeleccionada!.cuentaId,
         monto: monto,
       );
 
@@ -120,12 +117,11 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
         _mostrarAlertaSolicitudExitosa();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al solicitar retiro')),
+          const SnackBar(content: Text('Error al solicitar depósito')),
         );
       }
     }
   }
-
 
   InputDecoration _inputDecoration(String label, Color color) {
     return InputDecoration(
@@ -155,7 +151,7 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
       backgroundColor: const Color(0xFFFFFCF5),
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: const Text('Solicitar Retiro'),
+        title: const Text('Solicitar Depósito'),
         elevation: 0,
       ),
       body: SafeArea(
@@ -165,7 +161,6 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
             key: _formKey,
             child: ListView(
               children: [
-                // Selector de cuenta
                 DropdownButtonFormField<AccountModel>(
                   decoration: _inputDecoration('Cuenta', primaryColor),
                   hint: const Text('Seleccione cuenta'),
@@ -180,15 +175,12 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
                   onChanged: (cuenta) {
                     setState(() {
                       _cuentaSeleccionada = cuenta;
-                      // Cuando cambia la cuenta, limpia la cantidad para evitar confusión
                       _cantidadController.clear();
                     });
                   },
                 ),
-
                 const SizedBox(height: 24),
 
-                // Muestra saldo actual de la cuenta seleccionada (solo lectura)
                 if (_cuentaSeleccionada != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -209,9 +201,10 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
                         Text(
                           'Saldo actual',
                           style: TextStyle(
-                              fontSize: 18,
-                              color: primaryColor.withOpacity(0.8),
-                              fontWeight: FontWeight.w600),
+                            fontSize: 18,
+                            color: primaryColor.withOpacity(0.8),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         Text(
                           'S/ ${_cuentaSeleccionada!.saldo.toStringAsFixed(2)}',
@@ -224,33 +217,25 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
                       ],
                     ),
                   ),
-
                 const SizedBox(height: 24),
 
-                // Cantidad a retirar
                 TextFormField(
                   controller: _cantidadController,
-                  keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true, signed: false),
-                  decoration: _inputDecoration('¿Cuánto desea retirar?', primaryColor),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
+                  decoration: _inputDecoration('¿Cuánto desea depositar?', primaryColor),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Ingrese una cantidad';
                     final cantidad = double.tryParse(value);
                     if (cantidad == null || cantidad <= 0) return 'Ingrese una cantidad válida';
-
-                    if (_cuentaSeleccionada != null && cantidad > _cuentaSeleccionada!.saldo) {
-                      return 'La cantidad no puede ser mayor al saldo actual';
-                    }
                     return null;
                   },
                 ),
 
                 const SizedBox(height: 24),
 
-                // Método de retiro
                 DropdownButtonFormField<String>(
                   decoration: _inputDecoration('Método', primaryColor),
-                  hint: const Text('Seleccione método de transferencia'),
+                  hint: const Text('Seleccione método de depósito'),
                   value: _metodoSeleccionado,
                   items: _metodos
                       .map((metodo) => DropdownMenuItem(value: metodo, child: Text(metodo)))
@@ -263,32 +248,23 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
 
                 const SizedBox(height: 24),
 
-                // Cuenta o CCI destino
-                TextFormField(
-                  controller: _cuentaDestinoController,
-                  keyboardType: TextInputType.number
-                ),
-
-                const SizedBox(height: 24),
-
-                // Advertencia en rojo con icono
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: Colors.yellow.shade50,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.red.shade300),
+                    border: Border.all(color: Colors.yellow.shade300),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+                      const Icon(Icons.info_outline, color: Colors.amber, size: 28),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text(
                           'Recuerde que la solicitud deberá ser aprobada por todos los miembros de la cuenta mancomunada.',
                           style: const TextStyle(
-                            color: Colors.red,
+                            color: Colors.amber,
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
                           ),
@@ -300,7 +276,6 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
 
                 const SizedBox(height: 40),
 
-                // Botones
                 Row(
                   children: [
                     Expanded(
@@ -321,9 +296,9 @@ class _SolicitarRetiroScreenState extends State<SolicitarRetiroScreen> {
                     const SizedBox(width: 24),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: _onSolicitarRetiro,
+                        onPressed: _onSolicitarDeposito,
                         icon: const Icon(Icons.check),
-                        label: const Text('Solicitar retiro', style: TextStyle(fontSize: 16)),
+                        label: const Text('Solicitar depósito', style: TextStyle(fontSize: 16)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: Colors.white,

@@ -168,6 +168,14 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             _buildDrawerItem(
+              icon: Icons.arrow_downward,
+              title: 'Solicitar depósito',
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/solicitarDeposito');
+              },
+            ),
+            _buildDrawerItem(
               icon: Icons.savings,
               title: 'Ahorra Ya',
               onTap: () {

@@ -21,6 +21,7 @@ import 'views/predice_abandono_screen.dart';
 import 'views/cuenta_dueno_page.dart';
 import 'views/cuenta_miembro_page.dart';
 import 'views/notificaciones_screen.dart';
+import 'views/solcitar_deposito_screen.dart';
 
 // VIEWMODELS
 import 'viewmodels/login_viewmodel.dart';
@@ -98,6 +99,7 @@ class CooperApp extends StatelessWidget {
         '/accountDetail': (context) => AccountDetailPage(),
         '/analizaPatrones': (context) => AnalizaPatronesScreen(),
         '/prediceAbandono': (context) => PrediceAbandonoScreen(),
+        '/solicitarDeposito': (context) => SolicitarDepositoScreen(),
       },
     );
   }

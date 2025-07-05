@@ -286,4 +286,92 @@ class AccountService {
       throw Exception('Error al reportar cuenta: $responseBody');
     }
   }
+
+  Future<bool> withdraw({
+    required String cuentaId,
+    required double monto,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      print('Token no encontrado. Usuario no autenticado.');
+      return false;
+    }
+
+    final uid = _getUidFromToken(token);
+    if (uid == null) {
+      print('No se pudo extraer el UID del token.');
+      return false;
+    }
+
+    final url = Uri.parse('${_baseUrl}v1/accounts/withdraw');
+
+    final body = jsonEncode({
+      'cuentaId': cuentaId,
+      'usuarioUid': uid,
+      'monto': monto,
+    });
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Error al solicitar retiro: ${response.statusCode}');
+      print(response.body);
+      return false;
+    }
+  }
+  Future<bool> deposit({
+    required String cuentaId,
+    required double monto,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      print('Token no encontrado. Usuario no autenticado.');
+      return false;
+    }
+
+    final uid = _getUidFromToken(token);
+    if (uid == null) {
+      print('No se pudo extraer el UID del token.');
+      return false;
+    }
+
+    final url = Uri.parse('${_baseUrl}v1/accounts/deposit');
+
+    final body = jsonEncode({
+      'cuentaId': cuentaId,
+      'usuarioUid': uid,
+      'monto': monto,
+    });
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Error al solicitar depósito: ${response.statusCode}');
+      print(response.body);
+      return false;
+    }
+  }
+
 }
