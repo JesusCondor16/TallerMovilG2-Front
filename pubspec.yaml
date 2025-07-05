@@ -1,4 +1,4 @@
-name: cooperappfront
+name: CooperApp
 description: "Aplicativo Movil CooperApp"
 publish_to: 'none'
 
@@ -16,7 +16,7 @@ dependencies:
   lucide_icons: ^0.257.0
   provider: ^6.1.1
   cupertino_icons: ^1.0.8
-
+  file_picker: ^8.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

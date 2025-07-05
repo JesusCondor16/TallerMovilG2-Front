@@ -25,8 +25,22 @@ class ReportAccountScreen extends StatelessWidget {
   }
 }
 
-class ReportForm extends StatelessWidget {
+class ReportForm extends StatefulWidget {
   const ReportForm({super.key});
+
+  @override
+  State<ReportForm> createState() => _ReportFormState();
+}
+
+class _ReportFormState extends State<ReportForm> {
+  @override
+  void initState() {
+    super.initState();
+    // Cargar las cuentas cuando se inicializa el widget
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ReportViewModel>(context, listen: false).loadMemberAccounts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,21 +59,57 @@ class ReportForm extends StatelessWidget {
           children: [
             const Text('Seleccione cuenta a denunciar'),
             const SizedBox(height: 5),
-            DropdownButtonFormField<String>(
-              value: vm.selectedAccount.isEmpty ? null : vm.selectedAccount,
-              items: const [
-                DropdownMenuItem(value: '123', child: Text('Cuenta 123')),
-                DropdownMenuItem(value: '456', child: Text('Cuenta 456')),
-              ],
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.brown.shade300),
-                  borderRadius: BorderRadius.circular(10),
+
+            // Mostrar indicador de carga mientras se cargan las cuentas
+            if (vm.isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else
+            // Dropdown dinámico con las cuentas donde es miembro
+              DropdownButtonFormField<String>(
+                value: vm.selectedAccount,
+                items: vm.memberAccounts.map((account) {
+                  return DropdownMenuItem(
+                    value: account.cuentaId,
+                    child: Text('${account.nombreCuenta} - ${account.tipo}'),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  hintText: vm.memberAccounts.isEmpty
+                      ? 'No hay cuentas disponibles'
+                      : 'Seleccione una cuenta',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown.shade300),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onChanged: vm.memberAccounts.isEmpty ? null : vm.updateAccount,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor seleccione una cuenta';
+                  }
+                  return null;
+                },
+              ),
+
+            // Mostrar mensaje si no hay cuentas
+            if (vm.memberAccounts.isEmpty && !vm.isLoading)
+              const Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'No tienes cuentas donde seas miembro para reportar',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
                 ),
               ),
-              onChanged: vm.updateAccount,
-            ),
+
             const SizedBox(height: 20),
 
             const Text('Motivo de denuncia'),
@@ -74,6 +124,12 @@ class ReportForm extends StatelessWidget {
                 ),
               ),
               onChanged: vm.updateReason,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor ingrese un motivo';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 20),
 
@@ -81,6 +137,11 @@ class ReportForm extends StatelessWidget {
             const SizedBox(height: 5),
             TextFormField(
               readOnly: true,
+              controller: TextEditingController(
+                text: vm.evidences.isEmpty
+                    ? ''
+                    : vm.evidences.map((e) => e.path.split('/').last).join(', '),
+              ),
               decoration: InputDecoration(
                 hintText: 'Seleccione hasta 3 archivos',
                 suffixIcon: const Icon(Icons.upload_file),
@@ -90,19 +151,37 @@ class ReportForm extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                // Simular selección
-                vm.addEvidence('evidencia1.png');
+                vm.pickFiles();
               },
             ),
+
             const SizedBox(height: 30),
 
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  vm.submitReport();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Reporte enviado')),
-                  );
+                onPressed: (vm.memberAccounts.isEmpty || vm.isLoading)
+                    ? null
+                    : () async {
+                  try {
+                    await vm.submitReport();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Reporte enviado exitosamente'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error: ${e.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFDFAE),

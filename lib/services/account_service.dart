@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/create_account_model.dart';
 import '../models/account_model.dart';
 import '../config/constants.dart';
@@ -22,6 +23,28 @@ class AccountService {
       print('Error al decodificar el token: $e');
     }
     return null;
+  }
+
+  // Método para obtener el tipo de contenido correcto basado en la extensión del archivo
+  MediaType _getContentType(String filePath) {
+    final extension = filePath.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'pdf':
+        return MediaType('application', 'pdf');
+      default:
+      // Fallback para archivos no reconocidos
+        return MediaType('application', 'octet-stream');
+    }
   }
 
   /// Crear una nueva cuenta
@@ -138,6 +161,7 @@ class AccountService {
       return [];
     }
   }
+
   Future<String?> generateInviteCode(String cuentaId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -164,6 +188,7 @@ class AccountService {
       return null;
     }
   }
+
   /// Invitar un miembro a la cuenta
   Future<bool> inviteMember({
     required String email,
@@ -205,4 +230,60 @@ class AccountService {
     }
   }
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<String?> _getUid() async {
+    final token = await _getToken();
+    if (token == null) return null;
+    return _getUidFromToken(token);
+  }
+
+  /// Enviar un reporte con archivos adjuntos (manteniendo JSON)
+  Future<void> reportAccount({
+    required String cuentaId,
+    required String motivo,
+    required List<File> evidencias,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) throw Exception('Token no encontrado.');
+
+    final url = Uri.parse('${_baseUrl}v1/accounts/report');
+
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token';
+
+    // ✅ Crear el JSON correctamente
+    final jsonData = jsonEncode({
+      'cuentaUid': cuentaId,
+      'motivo': motivo,
+    });
+
+    // ✅ Agregar como MultipartFile con el nombre correcto
+    request.files.add(http.MultipartFile.fromString(
+      'data',  // Este es el nombre que espera Spring Boot
+      jsonData,
+      contentType: MediaType('application', 'json'),
+    ));
+
+    // ✅ Agregar evidencias
+    for (var file in evidencias) {
+      final contentType = _getContentType(file.path);
+      request.files.add(await http.MultipartFile.fromPath(
+        'files',
+        file.path,
+        contentType: contentType,
+      ));
+    }
+
+    final response = await request.send();
+
+    if (response.statusCode != 200) {
+      final responseBody = await response.stream.bytesToString();
+      throw Exception('Error al reportar cuenta: $responseBody');
+    }
+  }
 }
