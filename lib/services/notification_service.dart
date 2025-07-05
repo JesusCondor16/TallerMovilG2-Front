@@ -78,5 +78,29 @@ class NotificationService {
     }
   }
 
+  Future<void> acceptNotification(String idNotificacion) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final url = Uri.parse('${_baseUrl}v1/notifications/accept-member?idNotificacion=$idNotificacion');
+    final response = await http.post(url, headers: {
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode != 200) {
+      throw Exception('Error al aceptar: ${response.body}');
+    }
+  }
+
+  Future<void> rejectNotification(String idNotificacion) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final url = Uri.parse('${_baseUrl}v1/notifications/reject-member?idNotificacion=$idNotificacion');
+    final response = await http.post(url, headers: {
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode != 200) {
+      throw Exception('Error al rechazar: ${response.body}');
+    }
+  }
+
 
 }

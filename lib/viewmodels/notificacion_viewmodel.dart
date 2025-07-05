@@ -10,7 +10,7 @@ class NotificationViewModel extends ChangeNotifier {
 
   bool _loading = false;
   bool get loading => _loading;
-
+  String _lastUid = '';
   Future<void> fetchNotificaciones(String uid) async {
     _loading = true;
     notifyListeners();
@@ -24,5 +24,13 @@ class NotificationViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+  Future<void> acceptNotification(String idNotificacion) async {
+    await _service.acceptNotification(idNotificacion);
+    await fetchNotificaciones(_lastUid); // refrescar luego de aceptar
+  }
 
+  Future<void> rejectNotification(String idNotificacion) async {
+    await _service.rejectNotification(idNotificacion);
+    await fetchNotificaciones(_lastUid); // refrescar luego de rechazar
+  }
 }
