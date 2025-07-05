@@ -56,13 +56,15 @@ class NotificationService {
       return false;
     }
   }
-  Future<List<NotificationModel>> getNotificaciones(String cuentaId) async {
+
+  Future<List<NotificationModel>> getNotificaciones(String uid) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
     if (token == null) throw Exception('Token no encontrado');
 
-    final url = Uri.parse('${_baseUrl}v1/notifications/get-all?cuentaId=$cuentaId');
+    final url = Uri.parse('${_baseUrl}v1/notifications/get-all?idUsuario=$uid');
+
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -73,7 +75,8 @@ class NotificationService {
       return jsonList.map((json) => NotificationModel.fromJson(json)).toList();
     } else {
       throw Exception('Error al obtener notificaciones: ${response.statusCode}');
-
     }
   }
+
+
 }

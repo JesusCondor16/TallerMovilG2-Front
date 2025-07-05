@@ -11,11 +11,11 @@ class NotificationViewModel extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  Future<void> fetchNotificaciones(String cuentaId) async {
+  Future<void> fetchNotificaciones(String uid) async {
     _loading = true;
     notifyListeners();
     try {
-      _notificaciones = await _service.getNotificaciones(cuentaId);
+      _notificaciones = await _service.getNotificaciones(uid); // <- pásalo
     } catch (e) {
       debugPrint('Error al obtener notificaciones: $e');
       _notificaciones = [];
@@ -24,4 +24,5 @@ class NotificationViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
 }

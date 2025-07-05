@@ -44,35 +44,35 @@ class AppDrawer extends StatelessWidget {
   }
 
   Future<void> _navigateToNotifications(BuildContext context) async {
-    final cuentaId = await _extractCuentaIdFromToken();
-    if (cuentaId != null) {
+    final uid = await _extractUidFromToken();
+    if (uid != null) {
       Navigator.pop(context);
-      Navigator.pushNamed(context, '/notificaciones', arguments: cuentaId);
+      Navigator.pushNamed(context, '/notificaciones', arguments: uid);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo obtener el ID de cuenta')),
+        const SnackBar(content: Text('No se pudo obtener el ID del usuario')),
       );
     }
   }
 
-  Future<String?> _extractCuentaIdFromToken() async {
+  Future<String?> _extractUidFromToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    if (token == null) return null;
 
-    if (token != null && token.split('.').length == 3) {
-      try {
-        final payload = token.split('.')[1];
-        final normalized = base64Url.normalize(payload);
-        final decoded = utf8.decode(base64Url.decode(normalized));
-        final Map<String, dynamic> data = jsonDecode(decoded);
-
-        return data['cuentaId'] ?? data['accountId'] ?? null;
-      } catch (e) {
-        debugPrint('Error al decodificar token: $e');
+    try {
+      final parts = token.split('.');
+      if (parts.length == 3) {
+        final payload = base64Url.decode(base64Url.normalize(parts[1]));
+        final payloadMap = jsonDecode(utf8.decode(payload));
+        return payloadMap['sub']; // uid del usuario
       }
+    } catch (e) {
+      print('Error al decodificar el token: $e');
     }
     return null;
   }
+
 
   Widget _buildDrawerItem({
     required IconData icon,
