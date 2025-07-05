@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/report_viewmodel.dart';
 
@@ -38,6 +41,37 @@ class AppDrawer extends StatelessWidget {
     reportVM.prepareReport();
     Navigator.pop(context);
     Navigator.pushNamed(context, '/reportAccount');
+  }
+
+  Future<void> _navigateToNotifications(BuildContext context) async {
+    final cuentaId = await _extractCuentaIdFromToken();
+    if (cuentaId != null) {
+      Navigator.pop(context);
+      Navigator.pushNamed(context, '/notificaciones', arguments: cuentaId);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo obtener el ID de cuenta')),
+      );
+    }
+  }
+
+  Future<String?> _extractCuentaIdFromToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token != null && token.split('.').length == 3) {
+      try {
+        final payload = token.split('.')[1];
+        final normalized = base64Url.normalize(payload);
+        final decoded = utf8.decode(base64Url.decode(normalized));
+        final Map<String, dynamic> data = jsonDecode(decoded);
+
+        return data['cuentaId'] ?? data['accountId'] ?? null;
+      } catch (e) {
+        debugPrint('Error al decodificar token: $e');
+      }
+    }
+    return null;
   }
 
   Widget _buildDrawerItem({
@@ -119,6 +153,11 @@ class AppDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/joinAccount');
               },
+            ),
+            _buildDrawerItem(
+              icon: Icons.notifications,
+              title: 'Notificaciones',
+              onTap: () => _navigateToNotifications(context),
             ),
             _buildDrawerItem(
               icon: Icons.money_off,
