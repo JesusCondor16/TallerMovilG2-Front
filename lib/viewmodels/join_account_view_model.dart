@@ -1,43 +1,54 @@
 import 'package:flutter/material.dart';
+import '../services/notification_service.dart';
 
 class JoinAccountViewModel extends ChangeNotifier {
-  int _notificationCount = 0;
-  int get notificationCount => _notificationCount;
+  final NotificationService _notificationService = NotificationService();
 
-  final String codigoCuenta = 'A1B2-C3D4!';
+  String _codigo = '';
+  bool _isLoading = false;
 
-  final List<String> miembros = [
-    'Juan Pérez',
-    'María López',
-    'Carlos Martínez',
-    'Ana Gómez',
-    'Luis Fernández',
-  ];
+  String get codigo => _codigo;
+  bool get isLoading => _isLoading;
 
-  void mostrarNotificaciones(BuildContext context) {
+  void actualizarCodigo(String valor) {
+    _codigo = valor;
+    notifyListeners();
+  }
+
+  Future<void> unirseCuenta(BuildContext context) async {
+    if (_codigo.trim().isEmpty) {
+      _mostrarDialogo(context, 'Error', 'Debes ingresar un código válido.');
+      return;
+    }
+
+    _isLoading = true;
+    notifyListeners();
+
+    final success = await _notificationService.requestAccess(_codigo);
+
+    _isLoading = false;
+    notifyListeners();
+
+    if (success) {
+      _mostrarDialogo(context, '¡Éxito!', 'Solicitud enviada correctamente.');
+    } else {
+      _mostrarDialogo(context, 'Error', 'No se pudo enviar la solicitud.');
+    }
+  }
+
+  void _mostrarDialogo(BuildContext context, String titulo, String mensaje) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lista de solicitudes para unirse a la cuenta'),
-        content: const Text('No hay solicitudes pendientes.'), // Reemplazar lógica real aquí
+      builder: (_) => AlertDialog(
+        title: Text(titulo),
+        content: Text(mensaje),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cerrar'),
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
     );
-    resetNotificationCount();
-  }
-
-  void resetNotificationCount() {
-    _notificationCount = 0;
-    notifyListeners();
-  }
-
-  void incrementarNotificaciones() {
-    _notificationCount++;
-    notifyListeners();
   }
 }
