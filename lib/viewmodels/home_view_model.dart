@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 import '../models/account_model.dart';
+import '../services/account_service.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  List<AccountModel> allAccounts = [];
+  final AccountService _accountService = AccountService();
+
+  List<AccountModel> ownerAccounts = [];
+  List<AccountModel> memberAccounts = [];
+
+  bool isLoading = true;
 
   HomeViewModel() {
-    loadAccounts(); // Simula la carga (puedes integrarlo con Firebase)
+    loadAccounts();
   }
 
-  void loadAccounts() {
-    allAccounts = [
-      AccountModel(id: '1', name: 'Cuenta Principal', balance: 1250.0, isOwner: true),
-      AccountModel(id: '2', name: 'Cuenta Familiar', balance: 500.0, isOwner: false),
-    ];
+  Future<void> loadAccounts() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      ownerAccounts = await _accountService.getAccountsWhereOwner();
+      memberAccounts = await _accountService.getAccountsWhereMember();
+    } catch (e) {
+      print('Error al cargar cuentas: $e');
+    }
+
+    isLoading = false;
     notifyListeners();
   }
-
-  List<AccountModel> get ownerAccounts =>
-      allAccounts.where((acc) => acc.isOwner).toList();
-
-  List<AccountModel> get memberAccounts =>
-      allAccounts.where((acc) => !acc.isOwner).toList();
 }

@@ -16,7 +16,7 @@ class AccountService {
       if (parts.length == 3) {
         final payload = base64Url.decode(base64Url.normalize(parts[1]));
         final payloadMap = jsonDecode(utf8.decode(payload));
-        return payloadMap['sub']; // Ajusta si el UID tiene otra clave (como 'uid' o 'id')
+        return payloadMap['sub'];
       }
     } catch (e) {
       print('Error al decodificar el token: $e');
@@ -49,7 +49,7 @@ class AccountService {
       creadorUid: uid,
     );
 
-    final url = Uri.parse('$_baseUrl/v1/accounts/create');
+    final url = Uri.parse('${_baseUrl}v1/accounts/create');
 
     final response = await http.post(
       url,
@@ -69,8 +69,8 @@ class AccountService {
     }
   }
 
-  /// Obtener cuentas asociadas al usuario autenticado
-  Future<List<AccountModel>> getAccounts() async {
+  /// Obtener cuentas donde el usuario es dueño
+  Future<List<AccountModel>> getAccountsWhereOwner() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -85,7 +85,7 @@ class AccountService {
       return [];
     }
 
-    final url = Uri.parse('$_baseUrl/v1/accounts/user/$uid');
+    final url = Uri.parse('${_baseUrl}v1/accounts/get-owner/$uid');
 
     final response = await http.get(
       url,
@@ -96,17 +96,46 @@ class AccountService {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => AccountModel(
-        id: json['id'],
-        name: json['nombre'],
-        balance: (json['saldo'] as num).toDouble(),
-        isOwner: json['duenho'] ?? false, // Asegúrate que tu backend devuelva 'duenho'
-      )).toList();
+      return jsonList.map((json) => AccountModel.fromJson(json)).toList();
     } else {
-      print('Error al obtener cuentas: ${response.statusCode}');
+      print('Error al obtener cuentas como dueño: ${response.statusCode}');
+      print(response.body);
+      return [];
+    }
+  }
+
+  /// Obtener cuentas donde el usuario es miembro
+  Future<List<AccountModel>> getAccountsWhereMember() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      print('Token no encontrado. Usuario no autenticado.');
+      return [];
+    }
+
+    final uid = _getUidFromToken(token);
+    if (uid == null) {
+      print('No se pudo extraer el UID del token.');
+      return [];
+    }
+
+    final url = Uri.parse('${_baseUrl}v1/accounts/get-member/$uid');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => AccountModel.fromJson(json)).toList();
+    } else {
+      print('Error al obtener cuentas como miembro: ${response.statusCode}');
       print(response.body);
       return [];
     }
   }
 }
-

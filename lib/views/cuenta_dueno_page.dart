@@ -13,8 +13,8 @@ class CuentaDuenoPage extends StatelessWidget {
   void _handleMenuSelection(BuildContext context, String value) {
     switch (value) {
       case _menuAnadir:
-      _showMessage(context, 'Añadir miembros');
-      break;
+        _showMessage(context, 'Añadir miembros');
+        break;
       case _menuCodigo:
         _showMessage(context, 'Código generado');
         break;
@@ -37,7 +37,7 @@ class CuentaDuenoPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          account.name,
+          account.nombreCuenta,  // Cambiado aquí
           style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
         ),
         backgroundColor: Colors.indigo,
@@ -64,7 +64,8 @@ class CuentaDuenoPage extends StatelessWidget {
             children: [
               // Tarjeta de saldo
               Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
                 elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -80,7 +81,7 @@ class CuentaDuenoPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'S/. ${account.balance.toStringAsFixed(2)}',
+                        '${account.moneda} ${account.saldo.toStringAsFixed(2)}',  // Cambiado aquí
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.indigo,
@@ -90,12 +91,28 @@ class CuentaDuenoPage extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Mostrar más info del modelo si quieres:
+              Text('Estado: ${account.estado}',
+                  style: theme.textTheme.bodyMedium),
+              Text('Tipo: ${account.tipo}', style: theme.textTheme.bodyMedium),
+              Text('Descripción: ${account.descripcion}',
+                  style: theme.textTheme.bodyMedium),
+              Text('Creado por: ${account.creadorNombre}',
+                  style: theme.textTheme.bodyMedium),
+              Text(
+                'Fecha de creación: ${account.fechaCreacion.toLocal().toString().split(' ')[0]}',
+                style: theme.textTheme.bodyMedium,
+              ),
+
               const SizedBox(height: 30),
 
               // Título movimientos
               Text(
                 'Últimos movimientos',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                style:
+                theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
 
@@ -133,7 +150,7 @@ class CuentaDuenoPage extends StatelessWidget {
         ),
         title: Text(tipo),
         trailing: Text(
-          'S/. ${monto.toStringAsFixed(2)}',
+          '${account.moneda} ${monto.toStringAsFixed(2)}',  // También aquí para moneda
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: color,

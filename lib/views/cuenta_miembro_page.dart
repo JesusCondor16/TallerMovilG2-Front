@@ -13,7 +13,7 @@ class CuentaMiembroPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          account.name,
+          account.nombreCuenta,  // Cambiado aquí
           style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
         ),
         backgroundColor: Colors.indigo,
@@ -45,7 +45,7 @@ class CuentaMiembroPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'S/. ${account.balance.toStringAsFixed(2)}',
+                        '${account.moneda} ${account.saldo.toStringAsFixed(2)}',  // Cambiado aquí
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.indigo,
@@ -55,6 +55,18 @@ class CuentaMiembroPage extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Más información que puedas querer mostrar
+              Text('Estado: ${account.estado}', style: theme.textTheme.bodyMedium),
+              Text('Tipo: ${account.tipo}', style: theme.textTheme.bodyMedium),
+              Text('Descripción: ${account.descripcion}', style: theme.textTheme.bodyMedium),
+              Text('Creado por: ${account.creadorNombre}', style: theme.textTheme.bodyMedium),
+              Text(
+                'Fecha de creación: ${account.fechaCreacion.toLocal().toString().split(' ')[0]}',
+                style: theme.textTheme.bodyMedium,
+              ),
+
               const SizedBox(height: 30),
 
               // Título de movimientos
@@ -96,7 +108,7 @@ class CuentaMiembroPage extends StatelessWidget {
         ),
         title: Text(tipo),
         trailing: Text(
-          'S/. ${monto.toStringAsFixed(2)}',
+          '${account.moneda} ${monto.toStringAsFixed(2)}',  // También con moneda
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: color,
