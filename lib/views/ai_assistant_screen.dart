@@ -19,6 +19,7 @@ class AiAssistantScreen extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.grey[800]),
           actions: [
             Padding(
+
               padding: const EdgeInsets.only(right: 16.0),
               child: SizedBox(
                 height: kToolbarHeight, // Usa la altura estándar de la AppBar

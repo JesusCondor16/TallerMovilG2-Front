@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 
 class PrediceAbandonoViewModel extends ChangeNotifier {
-  // Aquí puedes tener variables, métodos y lógica para manejar la predicción
+  bool cargando = false;
+  String nombreUsuario = "";
+  double probabilidad = 0.0;
+  String riesgo = "medio";
+  BuildContext? context; // Por si se quiere cerrar diálogos desde el ViewModel
 
-  // Ejemplo: datos simulados
-  String riesgo = "Riesgo alto de abandono el próximo mes";
+  void setContext(BuildContext ctx) {
+    context = ctx;
+  }
 
-  List<String> alertas = [
-    "Menor frecuencia de ahorro",
-    "Aportes bajos",
-  ];
+  void setCargando(bool value) {
+    cargando = value;
+    notifyListeners();
+  }
 
-// Métodos para actualizar datos y notificar cambios si aplica
+  void setResultado(String nombre, double prob) {
+    nombreUsuario = nombre;
+    probabilidad = prob;
+    riesgo = _calcularRiesgo(prob);
+    notifyListeners();
+  }
+
+  String _calcularRiesgo(double prob) {
+    if (prob >= 0.75) return "alto";
+    if (prob >= 0.40) return "medio";
+    return "bajo";
+  }
 }
